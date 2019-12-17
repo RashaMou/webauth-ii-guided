@@ -25,7 +25,7 @@ router.post("/login", (req, res) => {
     .then(user => {
       if (user && bcrypt.compareSync(password, user.password)) {
         // save a session for the client and send back a cookie
-        req.session.user = user;
+        req.session.user = user; // this is what we're checking for in the restricted middleware
         res.status(200).json({
           message: `Welcome ${user.username}!`
         });
@@ -36,6 +36,18 @@ router.post("/login", (req, res) => {
     .catch(error => {
       res.status(500).json(error);
     });
+});
+
+router.get("/logout", (req, res) => {
+  if (req.session) {
+    req.session.destroy(error => {
+      if (error) {
+        res.status(500).json({
+          message: "you can checkout any time you like buyt you can never leave"
+        });
+      } else res.status(200).json({ message: "logged out" });
+    });
+  } else res.status(200).end();
 });
 
 module.exports = router;
